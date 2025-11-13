@@ -3,6 +3,9 @@ import { useState } from "react";
 import { mockConferences } from "@/mocks/conference";
 import { ConferenceCard } from "@/components/conferences/ConferenceCard";
 import { ConferenceFilters } from "@/components/conferences/SearchFilters";
+import { useRouter } from "next/navigation"; // this will allow us to get the conference id from the url
+
+
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState(""); // set searchquery to null string 
@@ -19,6 +22,8 @@ export default function HomePage() {
     &&
     (category === "" || c.category.includes(category))
   );
+
+  const router = useRouter(); 
 
   return (
     <main>
@@ -37,7 +42,7 @@ export default function HomePage() {
           <ConferenceCard
             key={conference.id}
             conference={conference}
-            onViewDetails={() => alert(`Details for ${conference.name}`)}
+            onViewDetails={() => router.push(`/conference/${conference.id}`)}   
           />
         ))}
       </div>
