@@ -1,38 +1,64 @@
 'use client';
-import { useState } from "react";
-import { mockConferences } from "@/mocks/conference";
+import { useState, useEffect } from "react";
 
 export default function AdminPage() {
-  const [confs, setConfs] = useState(mockConferences);
+  const [confs, setConfs] = useState([]);
   const [name, setName] = useState("");
   const [date, setDate] = useState("");
   const [location, setLocation] = useState("");
 
-  function handleAdd() {
-    setConfs([
-      ...confs,
-      {
-        id: Math.random().toString(36).substring(2, 9),
-        name,
-        date,
-        location,
-        description: "",
-        price: 0,
-        category: [],
-        imageUrl: "",
-        speakers: [],
-        maxAttendees: 100,
-        currentAttendees: 0,
-        isFeatured: false,
-      }
-    ]);
-    setName("");
-    setDate("");
-    setLocation("");
+  // Fetch conferences from API
+  async function fetchConfs() {
+    try {
+      const res = await fetch("/api/conferences");
+      const data = await res.json();
+      setConfs(data);
+    } catch (error) {
+      console.error("Error fetching conferences:", error);
+    }
   }
 
-  function handleDelete(id: string) {
-    setConfs(confs.filter(c => c.id !== id));
+  useEffect(() => {
+    fetchConfs();
+  }, []);
+
+  // Add conference (use POST)
+  async function handleAdd() {
+    try {
+      await fetch("/api/conferences", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          date,
+          location,
+          description: "",
+          price: 0,
+          category: ["General"],
+          imageUrl: "",
+          maxAttendees: 100,
+          currentAttendees: 0,
+          isFeatured: false,
+          status: "Open",
+        })
+      });
+      setName("");
+      setDate("");
+      setLocation("");
+      fetchConfs(); // Refresh the list
+    } catch (error) {
+      console.error("Error adding conference:", error);
+    }
+  }
+
+  // Delete conference (use DELETE)
+  async function handleDelete(id: string) {
+    try {
+      await fetch(`/api/conferences/${id}`, { method: "DELETE" });
+      fetchConfs(); // Refresh the list
+    } catch (error) {
+      console.error("Error deleting conference:", error);
+    }
   }
 
   return (
@@ -80,7 +106,7 @@ export default function AdminPage() {
             </tr>
           </thead>
           <tbody>
-            {confs.map(c => (
+            {confs.map((c: any) => (
               <tr key={c.id} className="border-b hover:bg-gray-50 dark:hover:bg-gray-800">
                 <td className="px-4 py-2 font-semibold">{c.name}</td>
                 <td className="px-4 py-2">{c.date}</td>

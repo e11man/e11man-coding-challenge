@@ -1,13 +1,12 @@
 'use client';
 
-import { Calendar, MapPin, DollarSign } from "lucide-react";
+import { Calendar, MapPin, DollarSign, Heart } from "lucide-react";
 import { Conference } from "@/types/conference";
-import { Heart } from "lucide-react";
-
-
 
 interface ConferenceCardProps {
   conference: Conference;
+  isFavorite: boolean;
+  onFavorite: (id: string) => void;
   onViewDetails: (id: string) => void;
 }
 
@@ -22,6 +21,11 @@ export function ConferenceCard({ conference, isFavorite, onFavorite, onViewDetai
     });
   };
 
+  // Always treat category as array for rendering
+  const categories = typeof conference.category === "string"
+    ? JSON.parse(conference.category)
+    : conference.category || [];
+
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg">
       <img
@@ -32,7 +36,7 @@ export function ConferenceCard({ conference, isFavorite, onFavorite, onViewDetai
       <div className="p-5 space-y-2">
         <h3 className="font-semibold text-lg text-gray-900">{conference.name}</h3>
         <div className="flex flex-wrap gap-2 text-xs text-blue-700 font-medium">
-          {conference.category.map((cat) => (
+          {categories.map((cat: string) => (
             <span key={cat}>{cat}</span>
           ))}
         </div>

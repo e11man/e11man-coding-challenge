@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Speaker {
+  id        String   @id @default(uuid())
+  name      String
+  title     String
+  company   String
+  bio       String
+  avatarUrl String?  @map("avatar_url")
+  
+  conferences ConferenceSpeaker[]
+  
+  @@map("speakers")
+}
+
+model Conference {
+  id              String   @id
+  name            String
+  description     String
+  date            String
+  location        String
+  price           Int
+  category        String   // JSON stored as string
+  imageUrl        String?  @map("image_url")
+  maxAttendees    Int      @map("max_attendees")
+  currentAttendees Int      @map("current_attendees")
+  isFeatured      Boolean  @map("is_featured")
+  status          String
+  
+  speakers        ConferenceSpeaker[]
+  
+  @@map("conferences")
+}
+
+model ConferenceSpeaker {
+  conferenceId String @map("conference_id")
+  speakerId    String @map("speaker_id")
+  
+  conference Conference @relation(fields: [conferenceId], references: [id], onDelete: Cascade)
+  speaker    Speaker    @relation(fields: [speakerId], references: [id], onDelete: Cascade)
+  
+  @@id([conferenceId, speakerId])
+  @@map("conference_speakers")
+}
