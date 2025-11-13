@@ -2,13 +2,16 @@
 
 import { Calendar, MapPin, DollarSign } from "lucide-react";
 import { Conference } from "@/types/conference";
+import { Heart } from "lucide-react";
+
+
 
 interface ConferenceCardProps {
   conference: Conference;
   onViewDetails: (id: string) => void;
 }
 
-export function ConferenceCard({ conference, onViewDetails }: ConferenceCardProps) {
+export function ConferenceCard({ conference, isFavorite, onFavorite, onViewDetails }: ConferenceCardProps) {
   // Format date utility
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -44,6 +47,16 @@ export function ConferenceCard({ conference, onViewDetails }: ConferenceCardProp
           <span className="flex items-center gap-1">
             <DollarSign size={14} /> ${conference.price}
           </span>
+        </div>
+        <div className="flex justify-center">
+          <button
+            onClick={() => onFavorite(conference.id)}
+            className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${
+              isFavorite ? 'bg-red-500 text-white' : 'bg-gray-200 text-gray-500'
+            }`}
+          >
+            <Heart size={20} />
+          </button>
         </div>
         <button
           onClick={() => onViewDetails(conference.id)}
