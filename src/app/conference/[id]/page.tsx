@@ -7,11 +7,14 @@ import { useRouter } from "next/navigation"; // this will allow us to get the co
 import { notFound } from "next/navigation";
 import React from "react";
 
+interface ConferenceDetailsPageProps {
+  params: {
+    id: string;
+  };
+}
 
-
-export default function ConferenceDetailsPage({ params }) {
-    //const { id } = params;
-    const { id } = React.use(params); // params is now a Promise, so we unwrap it with React.use() in client components.
+export default function ConferenceDetailsPage({ params }: ConferenceDetailsPageProps) {
+    const { id } = params;
 
     const conference = mockConferences.find(conf => conf.id === id);
     const router = useRouter();
