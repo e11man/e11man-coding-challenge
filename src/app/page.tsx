@@ -7,16 +7,13 @@ import { useRouter } from "next/navigation";
 import { HeroSection } from "@/components/home/HeroSection";
 import { ConferenceCardGrid } from "@/components/conferences/ConferenceCardGrid";
 
-// imports for connecting with supabase
-// import { Conference } from "@/types/conference";
-// import { prisma } from "@/utils/prisma";
-
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState(""); // set searchquery to null string
   const [category, setCategory] = useState("");
   const [favorites, setFavorites] = useState<string[]>([]);
   const [conferences, setConferences] = useState<any[]>([]); // Since we fetch from API, we use any[] for now
   const [loading, setLoading] = useState(true);
+  const [date, setDate] = useState("");
 
   // Use API route instead of Prisma directly!
   useEffect(() => {
@@ -43,16 +40,32 @@ export default function HomePage() {
     localStorage.setItem('favorites', JSON.stringify(favorites));
   }, [favorites]);
 
+  const normalizedDate = date ? date.substring(0, 10) : "";
+
   const categories = Array.from(new Set(conferences.flatMap(c => c.category || []))); // used ai to figure this part out so essentially it will grab all the categories from the conferences array
 
   // filter the confrences based off what was typed / selected
-  const filtered = conferences.filter(c =>
-    (searchQuery === "" ||
-      c.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.description?.toLowerCase().includes(searchQuery.toLowerCase()))
-    &&
-    (category === "" || (c.category || []).includes(category))
-  );
+  const filtered = conferences.filter(c => {
+    // Normalize conference date to local YYYY-MM-DD so it matches what the user sees
+    let conferenceDate = "";
+    if (c.date) {
+      const d = new Date(c.date);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      conferenceDate = `${year}-${month}-${day}`;
+    }
+    
+    return (
+      (searchQuery === "" ||
+        c.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        c.description?.toLowerCase().includes(searchQuery.toLowerCase()))
+      &&
+      (category === "" || (c.category || []).includes(category))
+      &&
+      (normalizedDate === "" || conferenceDate === normalizedDate)
+    );
+  });
 
   const router = useRouter();
 
@@ -79,6 +92,8 @@ export default function HomePage() {
           category={category}
           setCategory={setCategory} // sets category to the selected category
           availableCategories={categories} // returns all possible categories from the conferences array
+          date={date}
+          setDate={setDate}
         />
         <ConferenceCardGrid
           conferences={filtered}

@@ -7,6 +7,8 @@ interface ConferenceFiltersProps {
   category: string;
   setCategory: (value: string) => void;
   availableCategories: string[];
+  date: string;
+  setDate: (value: string) => void;
 }
 
 export function ConferenceFilters({
@@ -15,6 +17,8 @@ export function ConferenceFilters({
   category,
   setCategory, // sets category to the selected category
   availableCategories, // returns all possible categories from the MockConferences array
+  date,
+  setDate,
 }: ConferenceFiltersProps) {
   return ( // this will display the search filters
     <div className="flex flex-col md:flex-row gap-4 mb-6">
@@ -37,6 +41,14 @@ export function ConferenceFilters({
           <option key={cat} value={cat}>{cat}</option>
         ))}
       </select>
+
+      
+      <input // date filter 
+        type="date"
+        className="border rounded px-3 py-2 w-full md:w-1/5"
+        value={date}
+        onChange={e => setDate(e.target.value)}
+      />
     </div>
   );
 }
