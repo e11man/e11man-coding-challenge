@@ -184,6 +184,7 @@ e11man-coding-challenge/
 
 **High Priority:**
 - Authentication and user management
+- Add pagination for larger datasets
 - Server-side filtering for large datasets
 - Real registration system with database tracking
 - Image upload functionality
