@@ -8,13 +8,13 @@ import { notFound } from "next/navigation";
 import React from "react";
 
 interface ConferenceDetailsPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default function ConferenceDetailsPage({ params }: ConferenceDetailsPageProps) {
-    const { id } = params;
+    const { id } = React.use(params);
 
     const conference = mockConferences.find(conf => conf.id === id);
     const router = useRouter();
