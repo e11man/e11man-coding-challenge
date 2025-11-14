@@ -5,6 +5,9 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Conference } from "@/types/conference";
 
+// react hook
+import { useConferenceValidator } from "@/hooks/useConferenceValidator";
+
 interface ConferenceCardProps extends React.HTMLAttributes<HTMLDivElement> {
   conference: Conference;
   isFavorite: boolean;
@@ -24,6 +27,8 @@ const ConferenceCard = React.forwardRef<HTMLDivElement, ConferenceCardProps>(
       e.preventDefault();
       onViewDetails(conference.id);
     };
+
+    const status = useConferenceValidator(conference.date);
 
     const categories =
       typeof conference.category === "string"
@@ -48,6 +53,13 @@ const ConferenceCard = React.forwardRef<HTMLDivElement, ConferenceCardProps>(
         )}
         {...props}
       >
+        {status && (
+          <div className="absolute left-3 top-3 z-10">
+            <span className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground shadow-md">
+              {status}
+            </span>
+          </div>
+        )}
         <a href={`/conference/${conference.id}`} onClick={handleDetailsClick} aria-label={conference.name}>
           <div className="aspect-square overflow-hidden bg-gray-100">
             <img
