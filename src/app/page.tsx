@@ -14,6 +14,8 @@ export default function HomePage() {
   const [conferences, setConferences] = useState<any[]>([]); // Since we fetch from API, we use any[] for now
   const [loading, setLoading] = useState(true);
   const [date, setDate] = useState("");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
 
   // Use API route instead of Prisma directly!
   useEffect(() => {
@@ -46,7 +48,7 @@ export default function HomePage() {
 
   // filter the confrences based off what was typed / selected
   const filtered = conferences.filter(c => {
-    // Normalize conference date to local YYYY-MM-DD so it matches what the user sees
+    // Normalize conference date to YYYY-MM-DD so it matches what the user sees
     let conferenceDate = "";
     if (c.date) {
       const d = new Date(c.date);
@@ -64,6 +66,10 @@ export default function HomePage() {
       (category === "" || (c.category || []).includes(category))
       &&
       (normalizedDate === "" || conferenceDate === normalizedDate)
+      &&
+      (minPrice === "" || c.price >= parseInt(minPrice))
+      &&
+      (maxPrice === "" || c.price <= parseInt(maxPrice))
     );
   });
 
@@ -94,6 +100,10 @@ export default function HomePage() {
           availableCategories={categories} // returns all possible categories from the conferences array
           date={date}
           setDate={setDate}
+          minPrice={minPrice}
+          maxPrice={maxPrice}
+          setMinPrice={setMinPrice}
+          setMaxPrice={setMaxPrice}
         />
         <ConferenceCardGrid
           conferences={filtered}
