@@ -1,13 +1,23 @@
 'use client';
 import { useState, useEffect } from "react";
 
+import { Navigation } from "@/components/Navigation";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
 export default function AdminPage() {
   const [confs, setConfs] = useState([]);
   const [name, setName] = useState("");
   const [date, setDate] = useState("");
   const [location, setLocation] = useState("");
 
-  // Fetch conferences from API
   async function fetchConfs() {
     try {
       const res = await fetch("/api/conferences");
@@ -22,7 +32,6 @@ export default function AdminPage() {
     fetchConfs();
   }, []);
 
-  // Add conference (use POST)
   async function handleAdd() {
     try {
       await fetch("/api/conferences", {
@@ -40,97 +49,132 @@ export default function AdminPage() {
           currentAttendees: 0,
           isFeatured: false,
           status: "Open",
-        })
+        }),
       });
       setName("");
       setDate("");
       setLocation("");
-      fetchConfs(); // Refresh the list
+      fetchConfs();
     } catch (error) {
       console.error("Error adding conference:", error);
     }
   }
 
-  // Delete conference (use DELETE)
   async function handleDelete(id: string) {
     try {
       await fetch(`/api/conferences/${id}`, { method: "DELETE" });
-      fetchConfs(); // Refresh the list
+      fetchConfs();
     } catch (error) {
       console.error("Error deleting conference:", error);
     }
   }
 
   return (
-    <main className="max-w-3xl mx-auto p-8">
-      <h1 className="text-2xl font-bold mb-6">Admin Panel</h1>
-      <div className="mb-8 rounded-lg border p-6 bg-white dark:bg-gray-900">
-        <h2 className="text-xl font-semibold mb-4">Add Conference</h2>
-        <div className="flex flex-col md:flex-row gap-4 mb-4">
-          <input
-            value={name}
-            onChange={e => setName(e.target.value)}
-            placeholder="Name"
-            className="border rounded px-3 py-2 flex-1 bg-gray-50 dark:bg-gray-800"
-          />
-          <input
-            value={date}
-            onChange={e => setDate(e.target.value)}
-            placeholder="Date (YYYY-MM-DD)"
-            className="border rounded px-3 py-2 flex-1 bg-gray-50 dark:bg-gray-800"
-            type="date"
-          />
-          <input
-            value={location}
-            onChange={e => setLocation(e.target.value)}
-            placeholder="Location"
-            className="border rounded px-3 py-2 flex-1 bg-gray-50 dark:bg-gray-800"
-          />
-          <button
-            onClick={handleAdd}
-            className="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700 transition"
-          >
-            Add
-          </button>
-        </div>
-      </div>
-      <h2 className="text-xl font-semibold mb-4">All Conferences</h2>
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white dark:bg-gray-900 rounded-lg">
-          <thead>
-            <tr className="border-b">
-              <th className="px-4 py-2 text-left font-medium">Name</th>
-              <th className="px-4 py-2 text-left font-medium">Date</th>
-              <th className="px-4 py-2 text-left font-medium">Location</th>
-              <th className="px-4 py-2 text-left font-medium"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {confs.map((c: any) => (
-              <tr key={c.id} className="border-b hover:bg-gray-50 dark:hover:bg-gray-800">
-                <td className="px-4 py-2 font-semibold">{c.name}</td>
-                <td className="px-4 py-2">{c.date}</td>
-                <td className="px-4 py-2">{c.location}</td>
-                <td className="px-4 py-2">
-                  <button
-                    onClick={() => handleDelete(c.id)}
-                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-700 transition"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-            {confs.length === 0 && (
-              <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-gray-500">
-                  No conferences found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-    </main>
+    <>
+      <Navigation />
+      <main className="max-w-5xl px-6 py-12 mx-auto space-y-10">
+        <section className="space-y-2">
+          <h1 className="text-3xl font-semibold text-slate-900 dark:text-slate-100">Admin Panel</h1>
+          <p className="text-slate-600 dark:text-slate-300">
+            Manage your conference catalog. Add new events or remove ones that are no longer needed.
+          </p>
+        </section>
+
+        <section className="rounded-lg border bg-card p-6 shadow-sm">
+          <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Add Conference</h2>
+          <p className="text-sm text-muted-foreground mb-6">
+            Provide the basic details to create a new conference entry.
+          </p>
+          <div className="flex flex-col gap-4 md:flex-row">
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Conference Name"
+              className="flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            />
+            <input
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              placeholder="Date"
+              className="flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              type="date"
+            />
+            <input
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="Location"
+              className="flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            />
+            <button
+              onClick={handleAdd}
+              className="rounded-md bg-blue-600 px-5 py-2 text-sm font-medium text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
+            >
+              Add
+            </button>
+          </div>
+        </section>
+
+        <section className="space-y-4">
+          <header className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">All Conferences</h2>
+              <p className="text-sm text-muted-foreground">
+                Review existing conferences, track attendee counts, and remove entries.
+              </p>
+            </div>
+            <div className="rounded-full bg-primary/10 px-4 py-1 text-sm font-medium text-primary">
+              {confs.length} total
+            </div>
+          </header>
+
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>Location</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {confs.map((c: any) => (
+                <TableRow key={c.id}>
+                  <TableCell className="font-semibold text-slate-900 dark:text-slate-100">
+                    {c.name}
+                  </TableCell>
+                  <TableCell>{c.date}</TableCell>
+                  <TableCell>{c.location}</TableCell>
+                  <TableCell>
+                    <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">
+                      {c.status ?? "Open"}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <button
+                      onClick={() => handleDelete(c.id)}
+                      className="rounded-md bg-red-500 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2"
+                    >
+                      Delete
+                    </button>
+                  </TableCell>
+                </TableRow>
+              ))}
+              {confs.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center text-muted-foreground">
+                    No conferences found.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+            <TableCaption>
+              Need richer details? Extend the table component with more columns for pricing, capacity, or speaker
+              info.
+            </TableCaption>
+          </Table>
+        </section>
+      </main>
+    </>
   );
 }
