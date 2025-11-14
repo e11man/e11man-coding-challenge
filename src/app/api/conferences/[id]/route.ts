@@ -72,3 +72,24 @@ export async function DELETE(_request: Request, { params }: RouteParams) {
     );
   }
 }
+
+// put method for admin edit of exisitng data
+export async function PUT(_request: Request, { params }: RouteParams) {
+  const { id } = await params;
+  const data = await _request.json();
+  
+  const result = await prisma.conference.update({
+    where: { id },
+    data: {
+      name: data.name,
+      date: data.date,
+      location: data.location,
+      description: data.description || "",
+      price: data.price || 0,
+      category: JSON.stringify(data.category || ["General"]),
+      status: data.status || "Open",
+    }
+  });
+  
+  return NextResponse.json(result);
+}

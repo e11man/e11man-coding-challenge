@@ -17,56 +17,64 @@ export default function AdminPage() {
   const [name, setName] = useState("");
   const [date, setDate] = useState("");
   const [location, setLocation] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   async function fetchConfs() {
-    try {
-      const res = await fetch("/api/conferences");
-      const data = await res.json();
-      setConfs(data);
-    } catch (error) {
-      console.error("Error fetching conferences:", error);
-    }
+    const res = await fetch("/api/conferences");
+    const data = await res.json();
+    setConfs(data);
   }
 
   useEffect(() => {
     fetchConfs();
   }, []);
 
-  async function handleAdd() {
-    try {
+  async function handleSubmit() {
+    const body = {
+      name,
+      date,
+      location,
+      description: "",
+      price: 0,
+      category: ["General"],
+      imageUrl: "",
+      maxAttendees: 100,
+      currentAttendees: 0,
+      isFeatured: false,
+      status: "Open",
+    };
+
+    if (editingId) {
+      await fetch(`/api/conferences/${editingId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+    } else {
       await fetch("/api/conferences", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name,
-          date,
-          location,
-          description: "",
-          price: 0,
-          category: ["General"],
-          imageUrl: "",
-          maxAttendees: 100,
-          currentAttendees: 0,
-          isFeatured: false,
-          status: "Open",
-        }),
+        body: JSON.stringify(body),
       });
-      setName("");
-      setDate("");
-      setLocation("");
-      fetchConfs();
-    } catch (error) {
-      console.error("Error adding conference:", error);
     }
+
+    setName("");
+    setDate("");
+    setLocation("");
+    setEditingId(null);
+    fetchConfs();
+  }
+
+  function handleEdit(c: any) {
+    setName(c.name);
+    setDate(c.date);
+    setLocation(c.location);
+    setEditingId(c.id);
   }
 
   async function handleDelete(id: string) {
-    try {
-      await fetch(`/api/conferences/${id}`, { method: "DELETE" });
-      fetchConfs();
-    } catch (error) {
-      console.error("Error deleting conference:", error);
-    }
+    await fetch(`/api/conferences/${id}`, { method: "DELETE" });
+    fetchConfs();
   }
 
   return (
@@ -81,11 +89,10 @@ export default function AdminPage() {
         </section>
 
         <section className="rounded-lg border bg-card p-6 shadow-sm">
-          <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Add Conference</h2>
-          <p className="text-sm text-muted-foreground mb-6">
-            Provide the basic details to create a new conference entry.
-          </p>
-          <div className="flex flex-col gap-4 md:flex-row">
+          <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
+            {editingId ? "Edit Conference" : "Add Conference"}
+          </h2>
+          <div className="flex flex-col gap-4 md:flex-row mt-4">
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -95,9 +102,8 @@ export default function AdminPage() {
             <input
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              placeholder="Date"
-              className="flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               type="date"
+              className="flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
             <input
               value={location}
@@ -106,11 +112,24 @@ export default function AdminPage() {
               className="flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
             <button
-              onClick={handleAdd}
+              onClick={handleSubmit}
               className="rounded-md bg-blue-600 px-5 py-2 text-sm font-medium text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
             >
-              Add
+              {editingId ? "Update" : "Add"}
             </button>
+            {editingId && (
+              <button
+                onClick={() => {
+                  setName("");
+                  setDate("");
+                  setLocation("");
+                  setEditingId(null);
+                }}
+                className="rounded-md bg-gray-300 px-5 py-2 text-sm font-medium text-gray-800 transition hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+            )}
           </div>
         </section>
 
@@ -152,8 +171,14 @@ export default function AdminPage() {
                   </TableCell>
                   <TableCell className="text-right">
                     <button
+                      onClick={() => handleEdit(c)}
+                      className="rounded-md bg-blue-500 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-blue-600 mr-2"
+                    >
+                      Edit
+                    </button>
+                    <button
                       onClick={() => handleDelete(c.id)}
-                      className="rounded-md bg-red-500 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2"
+                      className="rounded-md bg-red-500 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-red-600"
                     >
                       Delete
                     </button>
