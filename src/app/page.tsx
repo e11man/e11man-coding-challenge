@@ -2,10 +2,10 @@
 import { useState, useEffect } from "react";
 // no longer need mock data since we load from supabase
 //import { mockConferences } from "@/mocks/conference";
-import { ConferenceCard } from "@/components/conferences/ConferenceCard";
 import { ConferenceFilters } from "@/components/conferences/SearchFilters";
 import { useRouter } from "next/navigation";
 import { HeroSection } from "@/components/home/HeroSection";
+import { ConferenceCardGrid } from "@/components/conferences/ConferenceCardGrid";
 
 // imports for connecting with supabase
 // import { Conference } from "@/types/conference";
@@ -80,17 +80,14 @@ export default function HomePage() {
           setCategory={setCategory} // sets category to the selected category
           availableCategories={categories} // returns all possible categories from the conferences array
         />
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {filtered.map(conference => (
-            <ConferenceCard
-              key={conference.id}
-              conference={conference}
-              isFavorite={favorites.includes(conference.id)}
-              onFavorite={() => toggleFavorite(conference.id)}
-              onViewDetails={() => router.push(`/conference/${conference.id}`)}
-            />
-          ))}
-        </div>
+        <ConferenceCardGrid
+          conferences={filtered}
+          favorites={favorites}
+          onFavorite={toggleFavorite}
+          onViewDetails={(id) => router.push(`/conference/${id}`)}
+          className="mt-8"
+          emptyState={<p className="text-base text-slate-600 dark:text-slate-300">No conferences found. Try adjusting your filters.</p>}
+        />
       </section>
     </main>
   );
