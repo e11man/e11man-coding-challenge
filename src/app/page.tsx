@@ -5,13 +5,14 @@ import { useState, useEffect } from "react";
 import { ConferenceCard } from "@/components/conferences/ConferenceCard";
 import { ConferenceFilters } from "@/components/conferences/SearchFilters";
 import { useRouter } from "next/navigation";
+import { HeroSection } from "@/components/home/HeroSection";
 
 // imports for connecting with supabase
 // import { Conference } from "@/types/conference";
 // import { prisma } from "@/utils/prisma";
 
 export default function HomePage() {
-  const [searchQuery, setSearchQuery] = useState(""); // set searchquery to null string 
+  const [searchQuery, setSearchQuery] = useState(""); // set searchquery to null string
   const [category, setCategory] = useState("");
   const [favorites, setFavorites] = useState<string[]>([]);
   const [conferences, setConferences] = useState<any[]>([]); // Since we fetch from API, we use any[] for now
@@ -44,7 +45,7 @@ export default function HomePage() {
 
   const categories = Array.from(new Set(conferences.flatMap(c => c.category || []))); // used ai to figure this part out so essentially it will grab all the categories from the conferences array
 
-  // filter the confrences based off what was typed / selected 
+  // filter the confrences based off what was typed / selected
   const filtered = conferences.filter(c =>
     (searchQuery === "" ||
       c.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -55,7 +56,7 @@ export default function HomePage() {
 
   const router = useRouter();
 
-  // allow users to select a favorite 
+  // allow users to select a favorite
   const toggleFavorite = (id: string) => {
     setFavorites(f => f.includes(id) ? f.filter(x => x !== id) : [...f, id]);
   };
@@ -63,26 +64,34 @@ export default function HomePage() {
   if (loading) return <main><p>Loading...</p></main>;
 
   return (
-    <main>
-      <h2>Featured Conferences</h2>
-      <ConferenceFilters
-        search={searchQuery} // what the user is typing in the search bar
-        setSearch={setSearchQuery} // setSearch function to update the search query
-        category={category}
-        setCategory={setCategory} // sets category to the selected category
-        availableCategories={categories} // returns all possible categories from the conferences array
-      />
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filtered.map(conference => (
-          <ConferenceCard
-            key={conference.id}
-            conference={conference}
-            isFavorite={favorites.includes(conference.id)}
-            onFavorite={() => toggleFavorite(conference.id)}
-            onViewDetails={() => router.push(`/conference/${conference.id}`)}   
-          />
-        ))}
-      </div>
+    <main className="space-y-16">
+      <HeroSection />
+      <section className="max-w-6xl px-6 pb-16 mx-auto">
+        <div className="mb-8 space-y-4 text-center">
+          <h2 className="text-3xl font-semibold text-slate-900 dark:text-slate-100">Featured Conferences</h2>
+          <p className="text-slate-600 dark:text-slate-300">
+            Use filters to uncover upcoming events tailored to your interests and budget.
+          </p>
+        </div>
+        <ConferenceFilters
+          search={searchQuery} // what the user is typing in the search bar
+          setSearch={setSearchQuery} // setSearch function to update the search query
+          category={category}
+          setCategory={setCategory} // sets category to the selected category
+          availableCategories={categories} // returns all possible categories from the conferences array
+        />
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {filtered.map(conference => (
+            <ConferenceCard
+              key={conference.id}
+              conference={conference}
+              isFavorite={favorites.includes(conference.id)}
+              onFavorite={() => toggleFavorite(conference.id)}
+              onViewDetails={() => router.push(`/conference/${conference.id}`)}
+            />
+          ))}
+        </div>
+      </section>
     </main>
   );
 }

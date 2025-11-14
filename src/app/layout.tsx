@@ -1,9 +1,4 @@
 import "./globals.css";
-import { Navigation } from "@/components/Navigation";
-
-
-
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -12,10 +7,7 @@ export default function RootLayout({
   return (
     <html lang="en">
 
-      <body className="antialiased">
-        <Navigation />
-        {children}
-      </body>
+      <body className="antialiased">{children}</body>
 
     </html>
   );
